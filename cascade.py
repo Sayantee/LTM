@@ -19,52 +19,44 @@ from config_com import Config
 class Casscade(object):
 
 
-        def cascade_Parallel(self,nodeBehaviors,inGraph,earlyAdoptorInitialSize,adoptionThreshold,in_community):
-		if Config.plotGraph:
-			in_pos = nx.fruchterman_reingold_layout(inGraph)
-			try:
-				from allPlot import plotGraph
-			except:
-                        	raise
-			graphObj = plotGraph()	
+    def cascade_ltm_community(self,node_state,graph,seed_size,theta):
+        if Config.plot_graph:
+            in_pos = nx.fruchterman_reingold_layout(inGraph)
+            try:
+                from allPlot import plotGraph
+            except:
+                raise
+                graphObj = plotGraph()
 
-                adoptionStep  = 0
-		adoptionStep_in = 0
-		adoptionStep_out = 0	
-	
-                Flag= True
-                step = 1
+        adaption_step = 0
+        adaption_step_starting = 0
+        adaption_step_others = 0
 
-                stepDic ={}
-		stepDic_in ={}
-		stepDic_out ={}
+        flag = True
 
-                updatedNodeBehaviors={}
+        step=1
+        step_dic ={}
+        step_starting_dic = {}
+        step_others_dic = {}
 
-                countRemaingB = len(nodeBehaviors)- earlyAdoptorInitialSize
-		countRemaingB_in = len(nodeBehaviors)/Config.clustered_numberCommuinities- earlyAdoptorInitialSize
-		countRemaingB_out = (len(nodeBehaviors)/Config.clustered_numberCommuinities) * (Config.clustered_numberCommuinities -1)
+        node_updated_state = {}
 
-		stepDic[0] = countRemaingB
-		stepDic_in[0] = countRemaingB_in
-		stepDic_out[0] = countRemaingB_out
+        unadapted_count = len(node_state) - seed_size
+        unadapted_starting_count = len(node_state)/Config.community_count - seed_size
+        unadapted_others_count = len(node_state)/Config.community_count * (Config.community_count - 1)
 
-                nodeadoptionProb = {} # keep adoption prob for each node
+        step_dic[0]=(unadapted_count,unadapted_starting_count,unadapted_others_count)
 
-		#analysis
-		#border ={}
+        node_adoption_probability = {}# keep adoption prob for each node
 
-                for i in nodeBehaviors:
-                        updatedNodeBehaviors[i]=nodeBehaviors[i]
-
-			if random.uniform(0,1) < adoptionThreshold:
-                        	nodeadoptionProb[i] = adoptionThreshold - Config.epsilon
+        for i in node_state:
+            node_updated_state[i]=node_state[i]
+            if random.uniform(0,1) < theta:
+                node_adoption_probability[node] = theta - Config.epsilon
 			else:
-				nodeadoptionProb[i] = adoptionThreshold + Config.epsilon
-			
- 
-                while Flag == True:
-			##plot each time step
+                node_adoption_probability[node] = theta + Config.epsilon
+
+        while flag == True:
 			timecount_in = 0
 			timecount_out = 0
 			timecount = 0
